@@ -1,0 +1,303 @@
+
+
+using System;
+using System.Diagnostics;
+
+// Class representing a single six-sided die
+class Die
+{
+    private Random random;
+    private int currentValue;
+
+    // Constructor to create a new die and roll it
+    public Die()
+    {
+        random = new Random();
+        Roll();
+    }
+
+    // Method to roll the die and return the current value
+    public int Roll()
+    {
+        currentValue = random.Next(1, 7);
+        return currentValue;
+    }
+
+    // Method to get the current value of the die
+    public int GetValue()
+    {
+        return currentValue;
+    }
+}
+
+// Main class representing the dice game
+class Game
+{
+    private int total;
+
+    // Method to display the main menu and handle game selection
+    public void Menu()
+    {
+        Console.WriteLine("");
+        Console.WriteLine("\n\tWelcome to the Dice Game!");
+        Console.WriteLine("\n\t1. Sevens Out (2 dice)");
+        Console.WriteLine("\n\t2. Three or More (5 dice)");
+        Console.Write("\n\tChoose a game to play: ");
+        int choice = Convert.ToInt32(Console.ReadLine());
+
+        switch (choice)
+        {
+            case 1:
+                SevensOutGame();
+                break;
+            case 2:
+                ThreeOrMoreGame();
+                break;
+            default:
+                Console.WriteLine("Invalid choice. Please try again.");
+                Menu();
+                break;
+        }
+    }
+
+    // Method to play the Sevens Out game
+    private void SevensOutGame()
+    {
+        Console.WriteLine("\n\tSevens Out Rules:\n\tRoll the two dice, noting the total rolled each time.\n\tIf it is a 7 - stop.\n\tIf it is any other number - add it to your total.\n\tIf it is a double - add double the total to your score (3,3 would add 12 to your total)\n\tPress (q) to quit the game at any time");
+
+        Die die1 = new Die();
+        Die die2 = new Die();
+
+        // Prompt player to choose opponent (computer or another player)
+        char opponent = ' ';
+        while (opponent != 'c' && opponent != 'p')
+        {
+            Console.WriteLine("\n\tDo you want to play against the computer (c) or another player (p)?");
+            opponent = char.ToLower(Console.ReadKey().KeyChar);
+            Console.WriteLine();
+            if (opponent != 'c' && opponent != 'p')
+            {
+                Console.WriteLine("Invalid input. Please try again.");
+            }
+        }
+
+        // Initialize player and opponent scores
+        int playerScore = 0;
+        int opponentScore = 0;
+        bool gameOver = false;
+
+        // Main game loop
+        while (!gameOver)
+        {
+            Console.WriteLine("\n\tPress the space bar to roll the dice, or press (q) to return to the menu.");
+            char input = Console.ReadKey().KeyChar;
+
+            if (input == ' ')
+            {
+                int roll1 = die1.Roll();
+                int roll2 = die2.Roll();
+                int sum = roll1 + roll2;
+
+                // Display dice rolls and calculate scores
+                Console.WriteLine("\n\tRolling...");
+                System.Threading.Thread.Sleep(1000);
+                Console.WriteLine("\n\tDie 1 rolled: " + roll1);
+                System.Threading.Thread.Sleep(1000);
+                Console.WriteLine("\n\tDie 2 rolled: " + roll2);
+                System.Threading.Thread.Sleep(1000);
+
+                if (roll1 == roll2)
+                {
+                    playerScore += sum * 2;
+                    Console.WriteLine("\n\tYou rolled a double! Adding double the total to your score.");
+                }
+                else
+                {
+                    playerScore += sum;
+                }
+
+                // Check win condition for player
+                if (sum == 7)
+                {
+                    Console.WriteLine("\n\tYou rolled a 7. You win!");
+                    gameOver = true;
+                }
+
+                Console.WriteLine("\n\tYour total: " + playerScore);
+
+                // Opponent's turn (computer or player)
+                if (opponent == 'c')
+                {
+                    // Opponent's turn against computer
+                    int opponentRoll1 = die1.Roll();
+                    int opponentRoll2 = die2.Roll();
+                    int opponentSum = opponentRoll1 + opponentRoll2;
+
+                    if (opponentRoll1 == opponentRoll2)
+                    {
+                        opponentScore += opponentSum * 2;
+                    }
+                    else
+                    {
+                        opponentScore += opponentSum;
+                    }
+
+                    // Check win condition for opponent
+                    if (opponentSum == 7)
+                    {
+                        Console.WriteLine("\n\tOpponent rolled a 7. Opponent wins.");
+                        gameOver = true;
+                    }
+
+                    Console.WriteLine("\n\tOpponent's total: " + opponentScore);
+                }
+                else if (opponent == 'p')
+                {
+                    // Player vs Player mode
+                    bool playerTurn = true;
+
+                    while (playerTurn)
+                    {
+                        Console.WriteLine("\n\tPress the Enter key for your opponent to roll the dice, or press (q) to return to the menu.");
+                        if (Console.ReadKey().Key == ConsoleKey.Enter)
+                        {
+                            // Handle opponent's turn
+                            int opponentRoll1 = die1.Roll();
+                            int opponentRoll2 = die2.Roll();
+                            int opponentSum = opponentRoll1 + opponentRoll2;
+
+                            Console.WriteLine("\n\tOpponent's rolling...");
+                            System.Threading.Thread.Sleep(1000);
+                            Console.WriteLine("\n\tOpponent's Die 1 rolled: " + opponentRoll1);
+                            System.Threading.Thread.Sleep(1000);
+                            Console.WriteLine("\n\tOpponent's Die 2 rolled: " + opponentRoll2);
+                            System.Threading.Thread.Sleep(1000);
+
+                            if (opponentRoll1 == opponentRoll2)
+                            {
+                                opponentScore += opponentSum * 2;
+                            }
+                            else
+                            {
+                                opponentScore += opponentSum;
+                            }
+
+                            // Check win condition for opponent
+                            if (opponentSum == 7)
+                            {
+                                Console.WriteLine("\n\tOpponent rolled a 7. Opponent wins.");
+                                gameOver = true;
+                            }
+
+                            Console.WriteLine("\n\tOpponent's total: " + opponentScore);
+                            playerTurn = false;
+                        }
+                        else if (input == 'q')
+                        {
+                            DisplayWinner(playerScore, opponentScore);
+                            Menu();
+                            return;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid input for opponent. Please try again.");
+                        }
+                    }
+                }
+            }
+            else if (input == 'q')
+            {
+                DisplayWinner(playerScore, opponentScore);
+                Menu();
+                return;
+            }
+            else
+            {
+                Console.WriteLine("Invalid input. Please try again.");
+            }
+        }
+
+        System.Threading.Thread.Sleep(2000);
+
+        Menu();
+    }
+
+    // Method to display the winner of the game
+    private void DisplayWinner(int playerScore, int opponentScore)
+    {
+        Console.WriteLine("\n\tPlayer score: " + playerScore);
+        Console.WriteLine("\n\tOpponent score: " + opponentScore);
+
+        if (playerScore > opponentScore)
+        {
+            Console.WriteLine("\n\tPlayer wins with a score of: " + playerScore);
+        }
+        else if (playerScore < opponentScore)
+        {
+            Console.WriteLine("\n\tOpponent wins with a score of: " + opponentScore);
+        }
+        else
+        {
+            Console.WriteLine("\n\tIt's a tie! Both players have the same score: " + playerScore);
+        }
+    }
+
+    // Method to play the Three or More game
+    private void ThreeOrMoreGame()
+    {
+        Die[] dice = new Die[5];
+        total = 0;
+
+        // Create and roll 5 dice, then calculate total value
+        for (int i = 0; i < dice.Length; i++)
+        {
+            dice[i] = new Die();
+        }
+
+        foreach (Die die in dice)
+        {
+            total += die.Roll();
+        }
+
+        Console.WriteLine("Total value of all dice rolled: " + total);
+
+        // Check win condition based on total value
+        if (total >= 3)
+        {
+            Console.WriteLine("You win!");
+        }
+        else
+        {
+            Console.WriteLine("You lose!");
+        }
+    }
+}
+
+class Program
+{
+    // Main entry point of the program
+    static void Main(string[] args)
+    {
+        // Testing the Sevens Out and Three or More game modes
+        Testing.TestSevensOut();
+        Testing.TestThreeOrMore();
+    }
+}
+
+// Class containing methods for testing game functionality
+class Testing
+{
+    // Method to test the Sevens Out game
+    public static void TestSevensOut()
+    {
+        Game game = new Game();
+        game.Menu(); // Start playing the Sevens Out game
+    }
+
+    // Method to test the Three or More game
+    public static void TestThreeOrMore()
+    {
+        Game game = new Game();
+        game.Menu(); // Start playing the Three or More game
+    }
+}
